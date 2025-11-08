@@ -1,0 +1,288 @@
+<!doctype html>
+
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1" />
+<title>UNO — Classic (AI selectable) — Demo</title>
+<style>
+  :root{--bg:#071226;--muted:#9aa6b2;--accent:#ff3b30;--accent2:#00a86b}
+  *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  body{margin:0;background:linear-gradient(180deg,#071226,#021021);color:#eaf0f6}
+  .wrap{max-width:1200px;margin:6px auto;padding:10px;display:grid;gap:10px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));padding:12px;border-radius:10px}
+  header{display:flex;justify-content:space-between;align-items:center}
+  h1{margin:0;font-size:16px}
+  .small{color:var(--muted);font-size:13px}/* layout */ .main{display:flex;gap:10px;align-items:flex-start} .sidebar{width:320px;min-width:240px} @media(max-width:900px){.main{flex-direction:column}.sidebar{width:100%}}
+
+input,button,select{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit} button{cursor:pointer} .avatar{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#506ef9,#a66bff);display:flex;align-items:center;justify-content:center;font-weight:700} .balance{font-weight:800;color:var(--accent2);font-size:16px} .small-muted{font-size:12px;color:var(--muted)}
+
+/* UNO classic-style cards (pure CSS) */ .card-ui{width:72px;height:104px;border-radius:8px;background:#fff;color:#000;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:6px;position:relative;font-weight:700;box-shadow:0 6px 20px rgba(2,6,23,0.5);overflow:hidden} .card-ui .corner{position:absolute;font-size:12px;top:6px;left:6px;opacity:0.95} .card-ui .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:34px;font-weight:900} .card-ui .suit{position:absolute;right:6px;bottom:6px;font-size:12px;opacity:0.8}
+
+.c-red{background:linear-gradient(180deg,#ffefef,#ffb6b6);color:#800} .c-blue{background:linear-gradient(180deg,#eef6ff,#b6d7ff);color:#02346a} .c-green{background:linear-gradient(180deg,#eefef0,#b6f0c5);color:#0b5b2e} .c-yellow{background:linear-gradient(180deg,#fffbe6,#ffecb3);color:#6a4b00} .c-wild{background:linear-gradient(135deg,#333,#111);color:#fff} .c-wild4{background:linear-gradient(135deg,#111,#000);color:#fff}
+
+.hand{display:flex;gap:8px;flex-wrap:wrap} .players-panel{display:flex;flex-direction:column;gap:8px} .player-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)} .controls{display:flex;gap:8px} .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02)}
+
+/* transitions */ .screen{transition:opacity .28s ease, transform .28s ease;opacity:0;transform:translateY(6px);display:none} .screen.active{display:block;opacity:1;transform:translateY(0)}
+
+/* large buttons for touch */ .big{padding:12px 16px;font-weight:700}
+
+footer{margin-top:6px;text-align:center;color:var(--muted);font-size:12px} </style>
+
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>UNO — Classic Edition (AI selectable)</h1>
+        <div class="small">Auto-login like Roblox · Pilih jumlah lawan · Efek suara & transisi</div>
+      </header>
+    </div><div class="main">
+  <aside class="card sidebar">
+    <!-- Login Pane -->
+    <div id="loginScreen" class="screen">
+      <h3>Masuk / Daftar</h3>
+      <div style="display:grid;gap:8px">
+        
+          <input id="inpName" placeholder="Username (tanpa spasi)" />
+        <input id="inpPass" placeholder="Password" type="password" />
+        <input id="tbirthday" placeholder="Tanggal Lahir" type="date" />
+        <div style="display:flex;gap:8px">
+          <button id="btnLoginInline" class="big" onclick="doLogin()">Masuk</button>
+          <button id="btnRegisterInline" class="big" onclick="doRegister()">Daftar</button>
+        </div>
+        <div class="small-muted">Akun akan tersimpan di perangkat. Jika sudah pernah login, kamu akan otomatis masuk.</div>
+      </div>
+    </div>
+
+    <!-- Profile Pane -->
+    <div id="profileScreen" class="screen">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;gap:10px;align-items:center">
+          <div id="avatar" class="avatar">A</div>
+          
+          <div>
+            <div id="displayName" style="font-weight:700">Player</div>
+            <div class="small-muted">ID: <span id="uid">-</span></div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="small-muted">Saldo</div>
+          <div id="bal" class="balance">0</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="grantCoins(100)" class="big">Dapatkan +100</button>
+        <button onclick="claimDaily()" class="big">Klaim Harian +500</button>
+        <button onclick="doLogout()" class="big">Logout</button>
+      </div>
+
+      <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <h4>Buat Room</h4>
+      <div style="display:grid;gap:8px">
+        <input id="roomName" placeholder="Nama room (opsional)" />
+        <div style="display:flex;gap:8px">
+          <select id="botCount"><option value="1">1 bot</option><option value="2">2 bot</option><option value="3" selected>3 bot</option></select>
+          <button onclick="createRoom()" class="big">Buat Room</button>
+        </div>
+      </div>
+      
+      <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <h4>Toko</h4>
+      <div id="shopList"></div>
+    </div>
+  </aside>
+
+  <main class="card" style="flex:1;min-height:480px">
+    <div id="lobbyScreen" class="screen active">
+      <h3>Lobby</h3>
+      <div class="small-muted">Pilih jumlah bot, buat room, lalu mulai. Bot akan mengisi meja.</div>
+    </div>
+
+    <img src="errorimage.png" alt="don't attack me...!!!" width="400" height="400">
+    <div id="roomScreen" class="screen">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 id="roomTitle">Room</h3>
+          <div class="small-muted" id="roomMeta">Menunggu pemain...</div>
+        </div>
+        <div>
+          <button onclick="leaveRoom()" class="big">Keluar Room</button>
+          <button onclick="startGame()" class="big">Mulai</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:10px">
+        <div style="flex:1">
+          <div class="small-muted">Pemain</div>
+          <div id="playersInRoom" style="margin-top:8px"></div>
+        </div>
+        <div style="width:240px">
+          <div class="small-muted">Chat</div>
+          <div id="chatRoom" style="height:200px;overflow:auto;background:rgba(255,255,255,0.01);padding:8px;border-radius:8px;margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="gameScreen" class="screen">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex:1">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+            <div id="deckBack" class="card-ui c-wild">Deck</div>
+            <div id="discard" class="card-ui" style="width:92px;height:124px">Discard</div>
+            <div class="small-muted">Giliran: <b id="turnName">-</b> • Arah: <b id="dir">→</b></div>
+          </div>
+          <div class="small-muted">Papan permainan</div>
+          <div id="gameLog" style="max-height:360px;overflow:auto;background:rgba(255,255,255,0.01);padding:8px;border-radius:8px;margin-top:8px"></div>
+        </div>
+
+        <div style="width:360px;display:flex;flex-direction:column;gap:8px">
+          <div class="small-muted">Pemain</div>
+          <div id="playersPanel" class="players-panel"></div>
+          <div class="small-muted">Tanganmu</div>
+          <div id="handPanel" class="hand" style="margin-top:8px"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button onclick="doCallUno()" class="big">UNO!</button>
+            <button onclick="endAllGames()" class="big">Akhiri</button>
+          </div>
+          <div class="small-muted">Saldo: <span id="balGame">0</span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer class="small-muted">Siap dimainkan offline — buka di browser atau Acode. Jika ada error, buka console di desktop untuk melihat pesan.</footer>
+
+  </div><script>
+// -------------------- Small audio system using WebAudio --------------------
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function beep(freq=440,duration=0.08,vol=0.02,type='sine'){ const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>{ o.stop(); }, duration*1000); }
+function soundClick(){ beep(800,0.05,0.02,'sine'); }
+function soundCard(){ beep(520,0.07,0.03,'triangle'); }
+function soundWin(){ beep(880,0.18,0.04,'sawtooth'); setTimeout(()=>beep(660,0.12,0.03,'sine'),200); }
+function soundLose(){ beep(220,0.18,0.04,'sawtooth'); }
+
+// -------------------- Storage & models
+const STORAGE_USERS = 'uno_v4_users';
+const STORAGE_SESSION = 'uno_v4_session';
+let USERS = loadUsers();
+let SESSION = loadSession();
+let CURRENT_ROOM = null; // {id,name,owner,players,started,game}
+
+function saveUsers(){ localStorage.setItem(STORAGE_USERS, JSON.stringify(USERS)); }
+function loadUsers(){ try{return JSON.parse(localStorage.getItem(STORAGE_USERS)||'{}')||{}; }catch(e){return {}; } }
+function saveSession(){ localStorage.setItem(STORAGE_SESSION, JSON.stringify(SESSION)); }
+function loadSession(){ try{return JSON.parse(localStorage.getItem(STORAGE_SESSION)||'null')||null; }catch(e){return null; } }
+
+// -------------------- Helpers & UI utils
+function showScreen(id){ ['loginScreen','profileScreen','lobbyScreen','roomScreen','gameScreen'].forEach(s=>{ const el=document.getElementById(s); if(s===id){ el.classList.add('active'); } else el.classList.remove('active'); }); }
+function $(id){ return document.getElementById(id); }
+function randId(n=6){ return Math.random().toString(36).slice(2,n+2); }
+function format(n){ return (n||0).toLocaleString('id-ID'); }
+
+// -------------------- Auth flows (Roblox-style auto-login)
+function doRegister(){ soundClick(); const name = $('inpName').value.trim(); const date = $('tbirthday').value.trim(); const pass = $('inpPass').value; if(!name || !pass) return alert('Isi username & password'); if(name.includes(' ')) return alert('Username tidak boleh ada spasi'); if(USERS[name]) return alert('Username sudah ada'); USERS[name] = {id: randId(8), name, pass, balance:1000, created: Date.now()}; saveUsers(); alert('Registrasi sukses — Anda terlogin otomatis'); SESSION = {uid: name}; saveSession(); postLogin(); }
+function doLogin(){ soundClick(); const name = $('inpName').value.trim(); name = $('tbirthday').value.trim(); const pass = $('inpPass').value; if(!name || !pass) return alert('Isi username & password'); const u=USERS[name]; if(!u || u.pass !== pass) return alert('Username/password salah'); SESSION = {uid:name}; saveSession(); postLogin(); }
+function doLogout(){ if(!confirm('Logout sekarang?')) return; soundClick(); SESSION = null; CURRENT_ROOM = null; saveSession(); showScreen('loginScreen'); renderProfile(); }
+function postLogin(){ // switch to profile/lobby
+  soundWin(); renderProfile(); showScreen('profileScreen'); showScreen('lobbyScreen'); }
+
+function renderProfile(){ if(!SESSION){ // show login
+    showScreen('loginScreen'); return; } const u = USERS[SESSION.uid]; if(!u){ SESSION = null; saveSession(); return showScreen('loginScreen'); } $('displayName').textContent = u.name; $('uid').textContent = u.id; $('avatar').textContent = u.name[0].toUpperCase(); $('bal').textContent = format(u.balance); renderShop(); }
+
+// auto-login on load
+window.addEventListener('load', ()=>{ if(SESSION){ // validate
+    if(!USERS[SESSION.uid]){ SESSION = null; saveSession(); showScreen('loginScreen'); } else { renderProfile(); showScreen('profileScreen'); } } else showScreen('loginScreen'); });
+
+// -------------------- Shop (simple built-in skins, no textures upload)
+const SHOP = [{id:'skin-vanilla',name:'Classic Pack',price:0,desc:'Tema klasik (default)'},{id:'skin-premium',name:'Premium Pack',price:1200,desc:'Warna & border istimewa'}];
+function renderShop(){ const el = $('shopList'); el.innerHTML=''; SHOP.forEach(it=>{ const d = document.createElement('div'); d.className='shop-item'; d.innerHTML = `<div><div style="font-weight:700">${it.name}</div><div class="small-muted">${it.desc}</div></div><div style="text-align:right"><div style="font-weight:700">${it.price.toLocaleString('id-ID')}</div><div style="margin-top:8px"><button onclick="buy('${it.id}')">Beli</button></div></div>`; el.appendChild(d); }); }
+function buy(id){ soundClick(); if(!SESSION) return alert('Login dulu'); const u = USERS[SESSION.uid]; const it = SHOP.find(x=>x.id===id); if(!it) return; if(u.balance < it.price) return alert('Saldo tidak cukup'); u.balance -= it.price; saveUsers(); updateBalancesUI(); alert('Pembelian sukses'); }
+
+function grantCoins(v=100){ if(!SESSION) return; const u=USERS[SESSION.uid]; u.balance = (u.balance||0) + v; saveUsers(); updateBalancesUI(); }
+function claimDaily(){ if(!SESSION) return; const u=USERS[SESSION.uid]; const last = u.lastDaily||0; if(Date.now() - last < 24*60*60*1000) return alert('Sudah klaim hari ini'); u.lastDaily = Date.now(); u.balance = (u.balance||0) + 500; saveUsers(); updateBalancesUI(); alert('+500 klaim harian'); }
+function updateBalancesUI(){ if(SESSION && USERS[SESSION.uid]){ $('bal').textContent = format(USERS[SESSION.uid].balance); $('balGame').textContent = format(USERS[SESSION.uid].balance); } }
+
+// -------------------- Rooms & game init
+function createRoom(){ soundClick(); if(!SESSION) return alert('Login dulu'); const roomName = $('roomName').value.trim() || (SESSION.uid + "'s room"); const bots = Number($('botCount').value); // create room object local
+  const room = {id: 'room-'+randId(6), name: roomName, owner: SESSION.uid, players: [SESSION.uid], bots, started:false, chat:[]}; // fill bots
+  for(let i=0;i<bots;i++){ const bot = 'Bot_'+randId(3); if(!USERS[bot]) USERS[bot] = {id:randId(6),name:bot,pass:'',balance:500}; room.players.push(bot); }
+  CURRENT_ROOM = room; showRoom(); }
+function showRoom(){ if(!CURRENT_ROOM) return; $('roomTitle').textContent = CURRENT_ROOM.name; $('roomMeta').textContent = `Owner: ${CURRENT_ROOM.owner} • ${CURRENT_ROOM.players.length} pemain`; renderPlayersInRoom(); showScreen('roomScreen'); }
+function leaveRoom(){ soundClick(); if(!confirm('Keluar room?')) return; CURRENT_ROOM = null; showScreen('profileScreen'); showScreen('lobbyScreen'); }
+function startGame(){ soundClick(); if(!CURRENT_ROOM) return; CURRENT_ROOM.started = true; CURRENT_ROOM.game = createNewGame(CURRENT_ROOM.players.slice()); showGame(); }
+function renderPlayersInRoom(){ const el = $('playersInRoom'); el.innerHTML = ''; CURRENT_ROOM.players.forEach(pn=>{ const p = USERS[pn] || {name:pn,balance:0}; const d = document.createElement('div'); d.className='player-row'; d.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><div class='avatar'>${p.name[0].toUpperCase()}</div><div><div style="font-weight:700">${p.name}</div><div class='small-muted'>${(p.balance||0).toLocaleString('id-ID')}</div></div></div><div>${pn===CURRENT_ROOM.owner?'<span class="small-muted">Owner</span>':''}</div>`; el.appendChild(d); }); }
+
+// -------------------- UNO engine (same as before + small improvements)
+function createNewGame(playerIds){ const colors=['red','yellow','green','blue']; const deck=[]; colors.forEach(c=>{ deck.push({type:'number',color:c,value:0}); for(let i=1;i<=9;i++){ deck.push({type:'number',color:c,value:i}); deck.push({type:'number',color:c,value:i}); } for(let k=0;k<2;k++){ deck.push({type:'skip',color:c}); deck.push({type:'reverse',color:c}); deck.push({type:'draw2',color:c}); } }); for(let i=0;i<4;i++){ deck.push({type:'wild'}); deck.push({type:'wild4'}); } shuffle(deck); const hands={}; playerIds.forEach(pid=>{ hands[pid]=[]; for(let i=0;i<7;i++) hands[pid].push(deck.pop()); }); let discard = deck.pop(); while(discard.type==='wild4'){ deck.unshift(discard); shuffle(deck); discard = deck.pop(); } const state = {id:'game-'+randId(6), players:playerIds, hands, deck, discardPile:[discard], current:0, dir:1, stackDraw:0, unoCalled:{}}; return state; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+
+function showGame(){ if(!CURRENT_ROOM || !CURRENT_ROOM.game) return; showScreen('gameScreen'); renderGameState(); runAILoop(); }
+
+function renderGameState(){ const g = CURRENT_ROOM.game; $('turnName').textContent = g.players[g.current]; $('dir').textContent = g.dir===1? '→':'←'; const disc = g.discardPile[g.discardPile.length-1]; $('discard').textContent = cardCenterLabel(disc); const pp = $('playersPanel'); pp.innerHTML=''; g.players.forEach((pid,idx)=>{ const p=USERS[pid]||{name:pid,balance:0}; const div=document.createElement('div'); div.className='player-row'; div.innerHTML=`<div style="display:flex;gap:8px;align-items:center"><div class="avatar">${p.name[0].toUpperCase()}</div><div><div style="font-weight:700">${p.name}${idx===g.current? ' (Turn)':''}</div><div class="small-muted">Kartu: ${g.hands[pid].length}</div></div></div><div>${(p.balance||0).toLocaleString('id-ID')}</div>`; pp.appendChild(div); }); const hp = $('handPanel'); hp.innerHTML=''; if(SESSION && g.hands[SESSION.uid]){ const hand = g.hands[SESSION.uid]; hand.forEach((c,idx)=>{ const btn = document.createElement('div'); btn.className = 'card-ui '+cardCssClass(c); btn.innerHTML = `<div class='corner'>${cornerLabel(c)}</div><div class='center'>${cardCenterLabel(c)}</div><div class='suit'>${suitLabel(c)}</div>`; btn.onclick = ()=>{ soundCard(); tryPlayCard(CURRENT_ROOM.id, SESSION.uid, idx); }; hp.appendChild(btn); }); } else hp.innerHTML='<div class="small-muted">Anda tidak bermain saat ini.</div>'; updateBalancesUI(); }
+
+function cardCssClass(c){ if(c.type==='wild4') return 'c-wild4'; if(c.type==='wild') return 'c-wild'; if(c.color) return 'c-'+c.color; return ''; }
+function cornerLabel(c){ if(c.type==='number') return c.value; if(c.type==='draw2') return '+2'; if(c.type==='skip') return '⦸'; if(c.type==='reverse') return '↺'; if(c.type==='wild') return 'W'; if(c.type==='wild4') return '+4'; return '?'; }
+function cardCenterLabel(c){ if(c.type==='number') return c.value; if(c.type==='draw2') return '+2'; if(c.type==='skip') return 'SKIP'; if(c.type==='reverse') return 'REV'; if(c.type==='wild') return 'WILD'; if(c.type==='wild4') return '+4'; return '?'; }
+function suitLabel(c){ if(c.color) return c.color.toUpperCase(); return ''; }
+function cardToString(c){ if(c.type==='number') return c.color+' '+c.value; return (c.color?c.color+' ':'')+c.type; }
+
+function canPlay(card, top, g){ if(card.type==='wild' || card.type==='wild4') return true; if(top.type==='wild' || top.type==='wild4'){ if(top.color && card.color===top.color) return true; } if(card.color && top.color && card.color===top.color) return true; if(card.type==='number' && top.type==='number' && card.value===top.value) return true; if(['skip','reverse','draw2'].includes(card.type) && card.type===top.type) return true; if(g.stackDraw>0) return card.type==='draw2'; return false; }
+
+function tryPlayCard(rid,pid,handIndex){ const r = CURRENT_ROOM; const g = r.game; if(g.players[g.current] !== pid) return alert('Bukan giliranmu'); const card = g.hands[pid][handIndex]; if(!card) return; const top = g.discardPile[g.discardPile.length-1]; if(!canPlay(card,top,g)) return alert('Kartu tidak cocok'); g.hands[pid].splice(handIndex,1); g.discardPile.push(card); addLog(`${pid} main ${cardToString(card)}`); // effects
+  if(card.type==='number'){ g.current = advance(g,g.current); }
+  else if(card.type==='skip'){ g.current = advance(g,g.current); g.current = advance(g,g.current); addLog('Skip!'); }
+  else if(card.type==='reverse'){ g.dir *= -1; g.current = advance(g,g.current); addLog('Reverse!'); }
+  else if(card.type==='draw2'){ g.stackDraw = (g.stackDraw||0) + 2; g.current = advance(g,g.current); addLog('Stack +2 -> '+g.stackDraw); }
+  else if(card.type==='wild'){ const color = prompt('Pilih warna (red,yellow,green,blue):','red'); card.color = (['red','yellow','green','blue'].includes(color)?color:'red'); g.current = advance(g,g.current); addLog('Warna dipilih: '+card.color); }
+  else if(card.type==='wild4'){ const color = prompt('Pilih warna (red,yellow,green,blue):','red'); card.color = (['red','yellow','green','blue'].includes(color)?color:'red'); const nxtIdx = advanceIndex(g,g.current); const challenge = confirm('Apakah pemain berikut ingin challenge +4?'); if(challenge){ const prevPlayer = g.players[(g.current - g.dir + g.players.length)%g.players.length]; const prevHand = g.hands[prevPlayer]||[]; const prevTop = g.discardPile[g.discardPile.length-2]; const hadMatching = prevHand.some(c=> c.color && c.color===prevTop.color); if(hadMatching){ addLog('Challenge sukses — pemain sebelumnya kena 4'); drawMultiple(g, prevPlayer, 4); g.current = advance(g,g.current); } else { addLog('Challenge gagal — challenger ambil 6'); drawMultiple(g, g.players[nxtIdx], 6); g.current = advance(g,g.current); } } else { drawMultiple(g, g.players[nxtIdx], 4); g.current = advance(g,g.current); addLog(g.players[nxtIdx]+' mengambil 4'); } }
+  // UNO checks
+  if(g.hands[pid].length === 1){ g.unoCalled = g.unoCalled || {}; g.unoCalled[pid] = false; }
+  if(g.hands[pid].length === 0){ addLog(pid+' menang!'); concludeGame(pid); return; }
+  saveState(); renderGameState(); }
+
+function advance(g, idx){ return (idx + g.dir + g.players.length) % g.players.length; }
+function advanceIndex(g, idx){ return (idx + g.dir + g.players.length) % g.players.length; }
+function drawMultiple(g, pid, n){ for(let i=0;i<n;i++){ if(g.deck.length===0) reshuffleDiscardIntoDeck(g); g.hands[pid].push(g.deck.pop()); } addLog(pid+' mengambil '+n+' kartu'); }
+function reshuffleDiscardIntoDeck(g){ const keep = g.discardPile.pop(); g.deck = g.discardPile.splice(0).concat(g.deck); shuffle(g.deck); g.discardPile = [keep]; }
+function drawCardForPlayer(pid, n=1){ const g = CURRENT_ROOM.game; if(g.players[g.current] !== pid) return alert('Bukan giliranmu untuk mengambil'); drawMultiple(g, pid, n); g.current = advance(g, g.current); saveState(); renderGameState(); }
+
+function addLog(txt){ const el = $('gameLog'); const d = document.createElement('div'); d.innerHTML = `<div style="font-size:13px">${txt}<div class='small-muted' style='font-size:11px'>${new Date().toLocaleTimeString()}</div></div>`; el.appendChild(d); el.scrollTop = el.scrollHeight; }
+
+function saveState(){ saveUsers(); // save current room to session storage so reload doesn't lose it
+  try{ localStorage.setItem('uno_v4_room', JSON.stringify(CURRENT_ROOM)); }catch(e){} }
+function loadState(){ try{ const r = JSON.parse(localStorage.getItem('uno_v4_room')||'null'); if(r) CURRENT_ROOM = r; }catch(e){} }
+
+// -------------------- AI behavior
+function runAILoop(){ // repeated checker
+  const tick = ()=>{ if(!CURRENT_ROOM || !CURRENT_ROOM.started || !CURRENT_ROOM.game) { setTimeout(tick, 400); return; } const g = CURRENT_ROOM.game; const cur = g.players[g.current]; if(cur.startsWith('Bot_')){ setTimeout(()=> botPlayTurn(cur), 500 + Math.random()*700); } setTimeout(tick, 300); }; tick(); }
+
+function botPlayTurn(botId){ const g = CURRENT_ROOM.game; if(g.players[g.current] !== botId) return; const hand = g.hands[botId]; const top = g.discardPile[g.discardPile.length-1]; if(g.stackDraw>0){ const idx = hand.findIndex(c=>c.type==='draw2'); if(idx>=0){ tryPlayCard(CURRENT_ROOM.id, botId, idx); return; } else { drawMultiple(g, botId, g.stackDraw); g.stackDraw = 0; g.current = advance(g, g.current); saveState(); renderGameState(); return; } }
+  let idx = hand.findIndex(c=> canPlay(c, top, g)); if(idx>=0){ tryPlayCard(CURRENT_ROOM.id, botId, idx); return; } drawMultiple(g, botId, 1); const last = g.hands[botId].length-1; const drawn = g.hands[botId][last]; if(canPlay(drawn, top, g)){ tryPlayCard(CURRENT_ROOM.id, botId, last); return; } g.current = advance(g, g.current); saveState(); renderGameState(); }
+
+// -------------------- End game
+function concludeGame(winner){ // reward/penalty
+  soundWin(); if(USERS[winner]){ USERS[winner].balance = (USERS[winner].balance||0) + 500; } // everyone else small penalty
+  for(const p of CURRENT_ROOM.players){ if(p!==winner && USERS[p]) USERS[p].balance = (USERS[p].balance||0) - 50; }
+  saveState(); addLog('Game selesai. Pemenang: '+winner); alert('Pemenang: '+winner); CURRENT_ROOM.started = false; CURRENT_ROOM.game = null; showScreen('profileScreen'); showScreen('lobbyScreen'); }
+
+function concludeGameAndReturn(){ CURRENT_ROOM = null; showScreen('profileScreen'); showScreen('lobbyScreen'); }
+
+function endAllGames(){ if(!confirm('Akhiri permainan sekarang?')) return; soundClick(); CURRENT_ROOM = null; localStorage.removeItem('uno_v4_room'); showScreen('profileScreen'); showScreen('lobbyScreen'); }
+
+// -------------------- UNO actions: call UNO
+function doCallUno(){ if(!SESSION) return alert('Login dulu'); if(!CURRENT_ROOM || !CURRENT_ROOM.game) return; const g = CURRENT_ROOM.game; if(g.unoCalled && g.unoCalled[SESSION.uid]===false){ g.unoCalled[SESSION.uid]=true; addLog(SESSION.uid+' memanggil UNO!'); saveState(); } else alert('Tidak ada UNO untuk dipanggil sekarang'); }
+
+// -------------------- Save/load on startup
+window.addEventListener('load', ()=>{ USERS = loadUsers(); SESSION = loadSession(); loadState(); if(SESSION && USERS[SESSION.uid]){ renderProfile(); showScreen('profileScreen'); } else showScreen('loginScreen'); if(CURRENT_ROOM && CURRENT_ROOM.started && CURRENT_ROOM.game) { // resume
+    showGame(); } });
+
+// small convenience to expose to inline onclick
+window.doRegister = doRegister; window.doLogin = doLogin; window.doLogout = doLogout; window.createRoom = createRoom; window.leaveRoom = leaveRoom; window.startGame = startGame; window.doCallUno = doCallUno; window.endAllGames = endAllGames; window.claimDaily = claimDaily; window.grantCoins = grantCoins;
+
+</script></body>
+</html>

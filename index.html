@@ -3,38 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Form</title>
+<title>Form Inti + Firebase</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
   font-family:'Poppins',sans-serif;
-  height:100vh; display:flex; justify-content:center; align-items:center;
-  background: linear-gradient(270deg,#74eb,#ACB6E5,#8e44ad,#3498db);
+  height:100vh;display:flex;justify-content:center;align-items:center;
+  background: linear-gradient(270deg,#6f00ff,#c800ff,#6c63ff,#3498db);
   background-size: 800% 800%;
   animation: gradientBG 25s ease infinite;
   overflow:hidden;
+  color:#fff;
 }
-@keyframes gradientBG{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
+@keyframes gradientBG{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
 .form-container{
-  background: rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.8);
   padding: 40px 30px;
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-  width:100%; max-width:500px;
-  color:#fff;
+  width:100%;max-width:500px;
   text-align:center;
 }
 h2{
-  text-align:center;
-  margin-bottom:20px;
   font-size:28px;
   text-shadow:0 0 15px #6c63ff,0 0 25px #ff00ff;
+  margin-bottom:20px;
 }
-/* Progress Bar */
 .progress-container{
   width:100%;
   height:8px;
@@ -53,11 +47,9 @@ h2{
   box-shadow:0 0 15px #6c63ff,0 0 25px #ff00ff;
 }
 .progress-text{margin-bottom:20px;font-size:14px;color:#fff;}
-/* Form Steps */
 .form-step{display:none;animation: fadeSlide 0.6s forwards;}
 .form-step.active{display:block;}
 @keyframes fadeSlide{0%{opacity:0;transform:translateY(30px);}100%{opacity:1;transform:translateY(0);}}
-/* Input hologram */
 input,textarea{
   width:100%;
   padding:14px 18px;
@@ -69,19 +61,13 @@ input,textarea{
   color:#fff;
   box-shadow:0 0 15px #6c63ff inset;
   transition: all 0.3s ease;
-  backdrop-filter: blur(5px);
   margin-bottom:20px;
-  background-image: linear-gradient(120deg, rgba(255,255,255,0.1), rgba(255,255,255,0.25));
-  background-size: 200% 200%;
 }
 input:focus,textarea:focus{
-  animation:  2s infinite linear;
   border-color:#ff00ff;
   box-shadow:0 0 30px #ff00ff,0 0 50px #6c63ff inset;
 }
-@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
-/* Button */
-.submit-btn{
+button{
   width:100%;
   padding:14px;
   border:none;
@@ -93,206 +79,77 @@ input:focus,textarea:focus{
   margin-top:10px;
   text-shadow:0 0 5px #fff;
 }
-.submit-btn:hover{box-shadow:0 0 30px #ff00ff,0 0 60px #6c63ff inset;}
+button:hover{box-shadow:0 0 30px #ff00ff,0 0 60px #6c63ff inset;}
 .success-message{font-size:22px;font-weight:bold;padding:30px;display:none;}
-/* Confetti */
 @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);}100%{transform:translateY(500px) rotate(720deg);}}
 .confetti{position:absolute;width:10px;height:10px;opacity:0.8;pointer-events:none;}
-
-/* OFFLINE SCREEN */
-#offlineScreen{
-  position:fixed;
-  top:0; left:0; right:0; bottom:0;
-  background:#000000;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  color:#ff4d4d;
-  font-size:22px;
-  font-weight:bold;
-  z-index:9999;
-  text-align:center;
-  padding:20px;
-}
-#offlineScreen.hidden{display:none;}
-.chibi-wifi{
-  position:relative;
-  width:140px;
-  height:200px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  animation:shake 2s infinite;
-}
-@keyframes shake{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-6px);}
-}
-.antenna{
-  width:40px;
-  height:40px;
-  border:6px solid #ff4d4d;
-  border-radius:50%;
-  margin-bottom:5px;
-  animation:pulse 1.5s infinite;
-}
-@keyframes pulse{
-  0%{box-shadow:0 0 10px #ff4d4d;}
-  50%{box-shadow:0 0 25px #ff1a1a;}
-  100%{box-shadow:0 0 10px #ff4d4d;}
-}
-.head{
-  width:100px;
-  height:80px;
-  background:#1a1a1a;
-  border:4px solid #ff4d4d;
-  border-radius:25px;
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-}
-.eyes{
-  display:flex;
-  justify-content:space-between;
-  width:60%;
-}
-.eye{
-  width:15px;
-  height:15px;
-  background:#ff4d4d;
-  border-radius:50%;
-}
-.mouth{
-  width:40px;
-  height:15px;
-  border-bottom:5px solid #ff4d4d;
-  border-radius:50%;
-  transform:rotate(180deg); /* sad */
-  margin-top:5px;
-}
-.body{
-  width:60px;
-  height:70px;
-  background:#1a1a1a;
-  border:4px solid #ff4d4d;
-  border-radius:20px;
-  margin-top:8px;
-}
-.arms{
-  position:absolute;
-  top:110px;
-  display:flex;
-  justify-content:space-between;
-  width:140px;
-}
-.arm{
-  width:20px;
-  height:40px;
-  background:#1a1a1a;
-  border:4px solid #ff4d4d;
-  border-radius:15px;
-}
-.arm.left{transform:rotate(20deg);}
-.arm.right{transform:rotate(-20deg);}
-#offlineScreen button{
-  margin-top:15px;
-  background:#ff4d4d;
-  border:none;
-  padding:10px 20px;
-  border-radius:10px;
-  color:#fff;
-  font-size:16px;
-  cursor:pointer;
-}
-#offlineScreen button:hover{
-  background:#ff1a1a;
-}
 </style>
 </head>
 <body>
-<audio id="clickSound" src="https://freesound.org/data/previews/341/341695_6241290-lq.mp3"></audio>
 
-<!-- Offline Screen -->
-<div id="offlineScreen" class="hidden">
-  <div class="chibi-wifi">
-    <div class="antenna"></div>
-    <div class="head">
-      <div class="eyes">
-        <div class="eye"></div>
-        <div class="eye"></div>
-      </div>
-      <div class="mouth"></div>
-    </div>
-    <div class="body"></div>
-    <div class="arms">
-      <div class="arm left"></div>
-      <div class="arm right"></div>
-    </div>
-  </div>
-  <p>Anda sedang offline</p>
-  <small>Periksa koneksi internet lalu coba lagi.</small>
-  <br>
-  <br>
-  <br>
-  <p2>ERROR 404</p2>
-</div>
-
-<div class="form-container" id="formContainer">
-  <h2>Form</h2>
+<div class="form-container">
+  <h2>Form Upload Data</h2>
   <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
-  <div class="progress-text" id="progressText">0 / 4</div>
+  <div class="progress-text" id="progressText">1 / 5</div>
 
   <form id="multiStepForm">
     <div class="form-step active">
-      <input type="name" name="name" placeholder="Nama" required>
-      <button type="button" class="submit-btn next-btn">Lanjut</button>
+      <input type="text" name="Nama" placeholder="Nama" required>
+      <button type="button" class="next-btn">Next</button>
     </div>
     <div class="form-step">
-      <input type="date" name="date" placeholder="Tanggal" required>
-      <button type="button" class="submit-btn next-btn">Lanjut</button>
+      <textarea name="Pesan" placeholder="Pesan" required></textarea>
+      <button type="button" class="next-btn">Next</button>
     </div>
     <div class="form-step">
-      <input type="text" name="message" placeholder="Pesan" required>
-      <button type="button" class="submit-btn next-btn">Lanjut</button>
-      </div>
-      <div class="form-step">
-      <input type="text" name="Inti" placeholder="Inti Peristiwa" required>
-      <button type="button" class="submit-btn next-btn">Lanjut</button>
-      </div>
-      <div class="form-step">
-      <input type="select" name="location" placeholder="lokasi" required>
-      <button type="button" class="submit-btn next-btn">Lanjut</button>
-      </div>
-      <div class="form-step">
-      <input type="time" name="Time" placeholder="Time" required>
-      <button type="submit" class="submit-btn">Send</button>
+      <input type="text" name="Lokasi" placeholder="Lokasi" required>
+      <button type="button" class="next-btn">Next</button>
+    </div>
+    <div class="form-step">
+      <input type="file" name="Inti" required>
+      <button type="button" class="next-btn">Next</button>
+    </div>
+    <div class="form-step">
+      <button type="submit">Kirim</button>
     </div>
   </form>
 
   <div class="success-message" id="successMessage">
-    Terima kasih!
-    <br>
-    Form berhasil dikirim
-    <br><br>
-    <button id="backHomeBtn" class="submit-btn">Kembali Ke Menu</button>
+    Data berhasil disimpan!<br><br>
+    <a href="List.html" style="color:#ff00ff;text-decoration:none;font-weight:bold;">Lihat hasil ➜</a>
   </div>
 </div>
 
-<script>
-const form=document.getElementById('multiStepForm');
-const steps=form.querySelectorAll('.form-step');
-const progressBar=document.getElementById('progressBar');
-const progressText=document.getElementById('progressText');
-const successMessage=document.getElementById('successMessage');
-const clickSound=document.getElementById('clickSound');
-const formContainer=document.getElementById('formContainer');
-const offlineScreen=document.getElementById('offlineScreen');
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
 
-let currentStep=0;
-const totalSteps=steps.length;
+const firebaseConfig = {
+  apiKey: "AIzaSyCwjE6HKAo_3xxmXMsorUdgPwdT6Oab-Ug",
+  authDomain: "server-1-6db64.firebaseapp.com",
+  projectId: "server-1-6db64",
+  storageBucket: "server-1-6db64.appspot.com",
+  messagingSenderId: "505263993335",
+  appId: "1:505263993335:web:3a84e536f1381a64ae3ef2",
+  measurementId: "G-V4N4TM5HN9"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const form = document.getElementById('multiStepForm');
+const steps = form.querySelectorAll('.form-step');
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const successMessage = document.getElementById('successMessage');
+
+let currentStep = 0;
+const totalSteps = steps.length;
 
 function showStep(index){
   steps.forEach((step,i)=>{
@@ -304,10 +161,8 @@ function showStep(index){
   progressText.textContent=`${index+1} / ${totalSteps}`;
 }
 
-// Next
 form.querySelectorAll('.next-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    clickSound.currentTime=0; clickSound.play();
     if(currentStep < totalSteps-1){
       currentStep++;
       showStep(currentStep);
@@ -315,28 +170,37 @@ form.querySelectorAll('.next-btn').forEach(btn=>{
   });
 });
 
-// Submit
-form.addEventListener('submit', e=>{
+form.addEventListener('submit', async e=>{
   e.preventDefault();
-  clickSound.currentTime=0; clickSound.play();
 
-  // Kumpulin semua data
   const formData = {};
-  form.querySelectorAll("input, textarea").forEach(el=>{
-    formData[el.name] = el.value;
-  });
+  const fileInput = form.querySelector('input[name="Inti"]');
+  const file = fileInput.files[0];
 
-  // Simpan ke localStorage
-  let submissions = JSON.parse(localStorage.getItem("formSubmissions")) || [];
-  submissions.push(formData);
-  localStorage.setItem("formSubmissions", JSON.stringify(submissions));
+  for (let el of form.querySelectorAll("input, textarea")) {
+    if (el.name !== "Inti") formData[el.name] = el.value;
+  }
+
+  // Upload file ke Firebase Storage
+  if(file){
+    const storageRef = ref(storage, 'uploads/' + file.name);
+    await uploadBytes(storageRef, file);
+    const fileURL = await getDownloadURL(storageRef);
+    formData.IntiURL = fileURL;
+  }
+
+  // Simpan data ke Firestore
+  try{
+    await addDoc(collection(db, "submissions"), formData);
+  } catch(err){
+    console.error("Error upload ke Firestore:", err);
+  }
 
   form.style.display='none';
+  successMessage.style.display='block';
   progressBar.style.width='100%';
   progressText.textContent=`${totalSteps} / ${totalSteps}`;
-  successMessage.style.display='block';
 
-  // confetti
   for(let i=0;i<70;i++){
     const c=document.createElement('div');
     c.classList.add('confetti');
@@ -350,31 +214,7 @@ form.addEventListener('submit', e=>{
   }
 });
 
-// Reset form saat kembali
-document.getElementById('backHomeBtn').addEventListener('click', ()=>{
-  form.querySelectorAll("input, textarea").forEach(el=>{el.value="";});
-  successMessage.style.display='none';
-  form.style.display='block';
-  currentStep=0;
-  showStep(currentStep);
-  progressBar.style.width='0%';
-});
-
-// Cek koneksi internet
-function checkConnection(){
-  if(navigator.onLine){
-    offlineScreen.classList.add("hidden");
-    formContainer.style.display="block";
-  }else{
-    offlineScreen.classList.remove("hidden");
-    formContainer.style.display="none";
-  }
-}
-window.addEventListener("online", checkConnection);
-window.addEventListener("offline", checkConnection);
-checkConnection();
-
 showStep(currentStep);
 </script>
 </body>
-  </html>
+</html>

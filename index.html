@@ -1,128 +1,263 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hasil Upload</title>
-<style>
-  body {
-    margin: 0;
-    background: radial-gradient(circle at top left, #070b1a, #0b121b 60%);
-    color: #fff;
-    font-family: Poppins, sans-serif;
-    padding: 20px;
-  }
-  h1 {
-    text-align: center;
-    background: linear-gradient(90deg,#6f00ff,#c800ff);
-    -webkit-background-clip: text;
-    color: transparent;
-    margin-bottom: 20px;
-  }
-  .data-item {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 0 20px rgba(120,0,255,0.3);
-  }
-  a.download-link {
-    color: #c800ff;
-    text-decoration: none;
-  }
-  a.download-link:hover {
-    text-decoration: underline;
-  }
-  button {
-    background: linear-gradient(90deg,#6f00ff,#c800ff);
-    border: none;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  button:hover {
-    opacity: 0.8;
-  }
-  .no-data {
-    text-align: center;
-    opacity: 0.6;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dino — Full Color Challenge (Final)</title>
+  <style>
+    :root{--bg1:#071029;--bg2:#051224;--glass:rgba(255,255,255,0.03);--accent:#7c5cff;--accent2:#00f2fe;--good:#22c55e}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6eef8}
+    #app{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px}
+    .panel{width:100%;max-width:980px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;box-shadow:0 12px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .hud{display:flex;justify-content:space-between;align-items:center;color:#cfe6ff;gap:10px}
+    .leftHUD,.rightHUD{display:flex;gap:10px;align-items:center}
+    .scoreBox{background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));padding:8px 14px;border-radius:12px;font-weight:700;display:flex;gap:18px;align-items:center}
+    button{background:transparent;color:var(--accent);border:1px solid rgba(124,92,255,0.18);padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    button.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#06202a;border:none}
+    canvas{background:transparent;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,0.6);width:100%;max-width:980px;aspect-ratio:16/9}
+    .meters{display:flex;gap:10px;align-items:center}
+    .bar{width:160px;height:12px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden}
+    .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:60%}
+    .hearts{display:flex;gap:6px}
+    .leader{margin-top:12px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02)}
+    input[type=text],input[type=email],input[type=password]{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px;color:#e6eef8}
+    /* Fullscreen login overlay */
+    .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.8));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:60}
+    .card{width:100%;max-width:520px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:26px;box-shadow:0 14px 50px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.03)}
+    .card h2{margin:0 0 8px 0}
+    .row{display:flex;gap:8px}
+    .muted{color:#9fb8d6;font-size:13px}
+    .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .small{font-size:13px}
+    footer{margin-top:10px;color:#9fb8d6;font-size:13px}
+    @media (max-width:600px){.card{margin:12px}} 
+  </style>
 </head>
 <body>
-<h1>Data yang Tersimpan</h1>
-<div id="dataContainer"></div>
-<div class="no-data" id="noDataMsg">Memuat data...</div>
+  <div id="app">
+    <div class="panel hud">
+      <div class="leftHUD">
+        <div class="scoreBox">Player: <span id="playerName">—</span></div>
+        <div class="scoreBox">Score: <span id="score">0</span></div>
+        <div class="scoreBox">High: <span id="high">0</span></div>
+        <div class="meters"><div title="Energy" style="display:flex;align-items:center;gap:6px">⚡<div class="bar"><i id="energyFill"></i></div></div><div title="Health" style="display:flex;align-items:center;gap:6px">❤️<div class="hearts" id="hearts"></div></div></div>
+      </div>
+      <div class="rightHUD">
+        <button id="startBtn" class="primary">Start / Restart</button>
+        <button id="logoutBtn" class="ghost">Logout</button>
+        <button id="muteBtn" class="ghost">Mute</button>
+        <button id="pauseBtn" class="ghost">Pause</button>
+      </div>
+    </div><canvas id="game"></canvas>
 
-<!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
-import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+<div class="panel leader">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div><strong>Leaderboard Global</strong> — Top 10</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="nameInput" type="text" placeholder="Nama (opsional)" maxlength="20" />
+      <button id="submitScoreBtn">Submit Score</button>
+    </div>
+  </div>
+  <ol id="leaderList" style="margin-top:8px;padding-left:18px"></ol>
+  <div class="muted">Leaderboard tersimpan online di Firebase Realtime Database.</div>
+</div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCwjE6HKAo_3xxmXMsorUdgPwdT6Oab-Ug",
-  authDomain: "server-1-6db64.firebaseapp.com",
-  projectId: "server-1-6db64",
-  storageBucket: "server-1-6db64.appspot.com",
-  messagingSenderId: "505263993335",
-  appId: "1:505263993335:web:3a84e536f1381a64ae3ef2",
-  measurementId: "G-V4N4TM5HN9"
-};
+  </div>  <!-- Fullscreen Login / Signup overlay -->  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="card">
+      <div class="topline"><h2>Masuk ke Dino — Full Color</h2><div class="muted small">Login diperlukan untuk leaderboard</div></div>
+      <div id="authForms">
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <button id="showLogin" class="primary">Login</button>
+          <button id="showSignup" class="ghost">Sign Up</button>
+        </div><form id="loginForm" style="display:block;" onsubmit="return false">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input id="loginEmail" type="email" placeholder="Email" required />
+        <input id="loginPassword" type="password" placeholder="Password" required />
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="loginBtn" class="primary">Masuk</button>
+          <button id="guestBtn" class="ghost">Main sebagai Guest</button>
+        </div>
+      </div>
+    </form>
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
+    <form id="signupForm" style="display:none;" onsubmit="return false">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input id="signupName" type="text" placeholder="Nama tampil (opsional)" maxlength="20" />
+        <input id="signupEmail" type="email" placeholder="Email" required />
+        <input id="signupPassword" type="password" placeholder="Password (min 6)" required />
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="signupBtn" class="primary">Daftar</button>
+        </div>
+      </div>
+    </form>
 
-const container = document.getElementById("dataContainer");
-const noDataMsg = document.getElementById("noDataMsg");
+    <div id="authMsg" class="muted small" style="margin-top:10px"></div>
+  </div>
+  <footer>Dengan masuk, skor kamu akan tersimpan di leaderboard online.</footer>
+</div>
 
-async function loadData() {
-  const submissionsCol = collection(db, "submissions");
-  const snapshot = await getDocs(submissionsCol);
-  const submissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  </div>  <script type="module">
+    // Firebase imports (script-tag style, v12.5.0 used by your project)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    import { getDatabase, ref, push, query, orderByChild, limitToLast, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-  if (submissions.length === 0) {
-    noDataMsg.textContent = "Belum ada data tersimpan.";
-    return;
-  }
-  noDataMsg.style.display = "none";
+    // --- Paste your firebaseConfig here (from the snippet you provided) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_FiLNuz6WJiszmx5GSVfE2YVT9tJK7ck",
+      authDomain: "dino-games-437fc.firebaseapp.com",
+      projectId: "dino-games-437fc",
+      storageBucket: "dino-games-437fc.firebasestorage.app",
+      messagingSenderId: "360800363471",
+      appId: "1:360800363471:web:08eb67c758fa913714a8ba",
+      measurementId: "G-7NMJHY5LW5",
+      databaseURL: "https://dino-games-437fc-default-rtdb.firebaseio.com"
+    };
 
-  submissions.forEach((data, index) => {
-    const div = document.createElement("div");
-    div.className = "data-item";
+    // Initialize
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    div.innerHTML = `
-      <p><b>Nama:</b> ${data.Nama || "-"}</p>
-      <p><b>Pesan:</b> ${data.Pesan || "-"}</p>
-      <p><b>Lokasi:</b> ${data.Lokasi || "-"}</p>
-      ${
-        data.IntiURL
-          ? `<p><b>File:</b> <a href="${data.IntiURL}" download class="download-link">Download</a></p>`
-          : `<p><b>File:</b> Tidak ada</p>`
+    // DOM refs
+    const overlay = document.getElementById('overlay');
+    const playerNameEl = document.getElementById('playerName');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const showLogin = document.getElementById('showLogin');
+    const showSignup = document.getElementById('showSignup');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const guestBtn = document.getElementById('guestBtn');
+    const authMsg = document.getElementById('authMsg');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const nameInput = document.getElementById('nameInput');
+    const submitScoreBtn = document.getElementById('submitScoreBtn');
+    const leaderList = document.getElementById('leaderList');
+
+    // show/hide forms
+    showLogin.addEventListener('click', ()=>{ loginForm.style.display='block'; signupForm.style.display='none'; authMsg.textContent=''; });
+    showSignup.addEventListener('click', ()=>{ loginForm.style.display='none'; signupForm.style.display='block'; authMsg.textContent=''; });
+
+    // Auth handlers
+    loginBtn.addEventListener('click', async ()=>{
+      const email = document.getElementById('loginEmail').value.trim();
+      const pw = document.getElementById('loginPassword').value;
+      try{ await signInWithEmailAndPassword(auth, email, pw); authMsg.textContent='Login berhasil'; }
+      catch(e){ authMsg.textContent = 'Login gagal: ' + (e.message || e.code); }
+    });
+
+    signupBtn.addEventListener('click', async ()=>{
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const pw = document.getElementById('signupPassword').value;
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, email, pw);
+        if(name){ await updateProfile(cred.user, {displayName: name}); }
+        authMsg.textContent = 'Akun dibuat. Sedang masuk...';
+      } catch(e){ authMsg.textContent = 'Daftar gagal: ' + (e.message || e.code); }
+    });
+
+    guestBtn.addEventListener('click', ()=>{
+      // Create a temporary guest name (not stored in Firebase Auth) and hide overlay
+      const guestName = 'Guest' + Math.floor(Math.random()*9000 + 1000);
+      window.__PLAYER = { uid: 'guest-' + Date.now(), displayName: guestName, isGuest: true };
+      onLogin(window.__PLAYER);
+    });
+
+    logoutBtn.addEventListener('click', async ()=>{ try{ await signOut(auth); localStorage.removeItem('playerName'); location.reload(); }catch(e){ console.warn(e); } });
+
+    onAuthStateChanged(auth, user => {
+      if(user){ // logged in
+        window.__PLAYER = { uid: user.uid, displayName: user.displayName || user.email, isGuest: false };
+        localStorage.setItem('playerName', window.__PLAYER.displayName);
+        onLogin(window.__PLAYER);
+      } else {
+        // if we have a stored playerName and it's guest-like, use it? otherwise show overlay
+        const saved = localStorage.getItem('playerName');
+        if(saved){ playerNameEl.textContent = saved; }
+        // show overlay (force login)
+        overlay.setAttribute('aria-hidden','false'); overlay.style.display = 'flex';
       }
-      <button onclick="hapusData('${data.id}')">Hapus</button>
-    `;
-    container.appendChild(div);
-  });
-}
+    });
 
-async function hapusData(id) {
-  const konfirmasi = confirm("Yakin mau hapus data ini?");
-  if (konfirmasi) {
-    try {
-      await deleteDoc(doc(db, "submissions", id));
-      location.reload();
-    } catch(err) {
-      console.error("Gagal hapus data:", err);
-      alert("Gagal hapus data.");
+    function onLogin(player){ overlay.setAttribute('aria-hidden','true'); overlay.style.display = 'none'; playerNameEl.textContent = player.displayName; window.PLAYER = player; // expose for other code
+      // fetch leaderboard now
+      fetchLeaderboard();
     }
-  }
-}
 
-loadData();
-</script>
-</body>
-</html>
+    // --- Leaderboard functions ---
+    async function submitScoreToFirebase(name, score){
+      try{
+        const scoresRef = ref(db, 'scores');
+        await push(scoresRef, { user: name, score: score, date: new Date().toISOString(), uid: (window.PLAYER && window.PLAYER.uid) || null });
+        fetchLeaderboard();
+      } catch(e){ console.warn('submit failed', e); }
+    }
+
+    function fetchLeaderboard(){
+      // get top 10 by score descending: order by 'score' and limitToLast(10)
+      const q = query(ref(db, 'scores'), orderByChild('score'), limitToLast(10));
+      onValue(q, snap => {
+        const list = [];
+        snap.forEach(child => { list.push(child.val()); });
+        // sort desc
+        list.sort((a,b)=>b.score - a.score);
+        renderLeaderboard(list);
+      }, err=>{ console.warn('leader fetch', err); });
+    }
+
+    function renderLeaderboard(rows){ leaderList.innerHTML=''; for(const r of rows){ const li = document.createElement('li'); const d = new Date(r.date); li.textContent = (r.user || 'Anon') + ' — ' + r.score + ' (' + d.toLocaleString() + ')'; leaderList.appendChild(li); } }
+
+    submitScoreBtn.addEventListener('click', ()=>{
+      const name = (nameInput.value.trim() || (window.PLAYER && window.PLAYER.displayName) || 'Anon');
+      const sc = Math.floor(window.GAME && window.GAME.score || 0);
+      // require auth for writing: if guest => show message
+      if(window.PLAYER && window.PLAYER.isGuest){ // guest can't write to DB under our rules
+        alert('Login dulu untuk submit skor ke leaderboard.');
+        return;
+      }
+      submitScoreToFirebase(name, sc);
+    });
+
+    // -------------------------------------------------
+    // Game code (module scope) — adapted from previous version
+    // -------------------------------------------------
+    const canvas = document.getElementById('game'); const ctx = canvas.getContext('2d');
+    function resize(){ const ratio = 16/9; const width = Math.min(window.innerWidth - 40, 980); canvas.width = Math.floor(width * devicePixelRatio); canvas.height = Math.floor((width/ratio) * devicePixelRatio); canvas.style.width = width + 'px'; canvas.style.height = (width/ratio) + 'px'; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+    window.addEventListener('resize', resize); resize();
+
+    const scoreEl = document.getElementById('score'); const highEl = document.getElementById('high'); const startBtn = document.getElementById('startBtn'); const muteBtn = document.getElementById('muteBtn'); const pauseBtn = document.getElementById('pauseBtn'); const energyFill = document.getElementById('energyFill'); const heartsEl = document.getElementById('hearts');
+
+    let running=false, paused=false, muted=false, lastTime=0; let score=0, high = Number(localStorage.getItem('dino_high')||0); highEl.textContent = high;
+    const GRAV=1400, groundY=160;
+    const dino = { x:60, y:0, w:48, h:48, vy:0, onGround:false, duck:false, jumps:0 };
+    const maxJumps = 2;
+    let obstacles = [], powerUps = [], particles = [], clouds = []; let spawnTimer=0, speed=420, difficulty=1; let shield=0, rainbow=0; let energy=100; let health=3;
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext; const audioCtx = AudioCtx ? new AudioCtx() : null; let musicStarted=false; let musicNode=null;
+
+    function startProceduralMusic(){ if(!audioCtx || musicStarted || muted) return; musicStarted=true; const master = audioCtx.createGain(); master.gain.value = 0.45; master.connect(audioCtx.destination); const bpm=110; const beat = 60/bpm; const bass = audioCtx.createOscillator(); bass.type='sawtooth'; const bassGain = audioCtx.createGain(); bassGain.gain.value=0.0; bass.connect(bassGain); bassGain.connect(master); const lp = audioCtx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=800; bassGain.connect(lp); lp.connect(master); const hatGain = audioCtx.createGain(); hatGain.gain.value=0.0; hatGain.connect(master); const lead = audioCtx.createOscillator(); lead.type='triangle'; const leadGain = audioCtx.createGain(); leadGain.gain.value=0.0; lead.connect(leadGain); leadGain.connect(master); bass.start(); lead.start(); let startTime = audioCtx.currentTime + 0.02; function schedule(time){ for(let i=0;i<4;i++){ const t = time + i*beat; const notes=[55,82.4,65.4,73.4]; bass.frequency.setValueAtTime(notes[i], t); bassGain.gain.setValueAtTime(0.12, t); bassGain.gain.exponentialRampToValueAtTime(0.001, t+beat*0.9); if(i%2===0){ lead.frequency.setValueAtTime(notes[i]*2.5, t+0.05); leadGain.gain.setValueAtTime(0.06, t+0.05); leadGain.gain.exponentialRampToValueAtTime(0.0001, t+beat*0.5); } const bufferSize = audioCtx.sampleRate * 0.02; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for(let j=0;j<data.length;j++) data[j] = (Math.random()*2-1) * Math.exp(-j/(bufferSize/6)); const src = audioCtx.createBufferSource(); src.buffer = buffer; src.connect(hatGain); hatGain.gain.setValueAtTime(0.06, t+0.02); src.start(t+0.02); } musicNode = setTimeout(()=>{ schedule(time + 4*beat); }, (4*beat - 0.05) * 1000); }
+    schedule(startTime); startProceduralMusic.stop = ()=>{ try{ bass.stop(); lead.stop(); }catch(e){} if(musicNode) clearTimeout(musicNode); musicStarted=false; } }
+    function stopProceduralMusic(){ if(startProceduralMusic.stop) startProceduralMusic.stop(); }
+
+    function sfx(type){ if(muted||!audioCtx) return; const now = audioCtx.currentTime; if(type==='jump'){ const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(900, now); g.gain.setValueAtTime(0.12, now); o.connect(g); g.connect(audioCtx.destination); o.start(now); o.frequency.exponentialRampToValueAtTime(400, now+0.12); g.gain.exponentialRampToValueAtTime(0.0001, now+0.18); o.stop(now+0.18); } else if(type==='double'){ const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(1200, now); g.gain.setValueAtTime(0.1, now); o.connect(g); g.connect(audioCtx.destination); o.start(now); o.frequency.exponentialRampToValueAtTime(700, now+0.16); g.gain.exponentialRampToValueAtTime(0.0001, now+0.22); o.stop(now+0.22); } else if(type==='hit'){ const b=audioCtx.createBufferSource(); const g=audioCtx.createGain(); const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate*0.08, audioCtx.sampleRate); const data = buffer.getChannelData(0); for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*Math.exp(-i/2000); b.buffer=buffer; g.gain.value=0.15; b.connect(g); g.connect(audioCtx.destination); b.start(); } else if(type==='power'){ const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(1400, now); g.gain.setValueAtTime(0.08, now); o.connect(g); g.connect(audioCtx.destination); o.start(now); o.frequency.exponentialRampToValueAtTime(900, now+0.25); g.gain.exponentialRampToValueAtTime(0.0001, now+0.3); o.stop(now+0.3); } else if(type==='gameover'){ const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(220, now); g.gain.setValueAtTime(0.18, now); o.connect(g); g.connect(audioCtx.destination); o.start(now); o.frequency.exponentialRampToValueAtTime(90, now+0.6); g.gain.exponentialRampToValueAtTime(0.0001, now+0.7); o.stop(now+0.7); } }
+
+    const rand=(a,b)=> Math.random()*(b-a)+a;
+    function ensureClouds(){ while(clouds.length<6) clouds.push({x:rand(0,worldWidth()),y:rand(20,110),s:rand(0.6,1.6)}); }
+    function worldHeight(){ return canvas.height / devicePixelRatio; }
+    function worldWidth(){ return canvas.width / devicePixelRatio; }
+
+    function reset(){ obstacles=[]; powerUps=[]; particles=[]; clouds=[]; spawnTimer=0; speed=420; difficulty=1; score=0; shield=0; rainbow=0; energy=100; health=3; dino.y = worldHeight() - groundY - dino.h; dino.vy=0; dino.onGround=true; dino.duck=false; dino.jumps=0; lastTime = performance.now(); ensureClouds(); updateEnergy(); renderHearts(); }
+
+    function start(){ if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); if(audioCtx && !musicStarted && !muted) startProceduralMusic(); reset(); running=true; paused=false; lastTime=performance.now(); loop(lastTime); }
+    pauseBtn.addEventListener('click', ()=>{ if(!running) return; paused = !paused; pauseBtn.textContent = paused? 'Resume' : 'Pause'; if(!paused){ lastTime = performance.now(); loop(lastTime); } });
+    startBtn.addEventListener('click', ()=>{ // user must be logged in or guest variable set
+      if(!window.PLAYER){ alert('Login dulu untuk mulai bermain.'); return; }
+      start(); });
+
+    muteBtn.addEventListener('click', ()=>{ muted = !muted; muteBtn.textContent = muted? 'Unmute' : 'Mute'; if(muted) stopProceduralMusic(); else if(!musicStarted) startProceduralMusic(); });
+
+    window.addEventListener('keydown', (e)=>{ if(e.code==='Space' || e.code==='ArrowUp'){ e.preventDefault(); handleJump(); } if(e.code===

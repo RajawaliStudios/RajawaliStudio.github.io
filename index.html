@@ -3,129 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Form Inti + Firebase</title>
+<title>Hasil Upload</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-  font-family:'Poppins',sans-serif;
-  height:100vh;display:flex;justify-content:center;align-items:center;
-  background: linear-gradient(270deg,#6f00ff,#c800ff,#6c63ff,#3498db);
-  background-size: 800% 800%;
-  animation: gradientBG 25s ease infinite;
-  overflow:hidden;
-  color:#fff;
-}
-@keyframes gradientBG{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
-.form-container{
-  background: rgba(0,0,0,0.8);
-  padding: 40px 30px;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-  width:100%;max-width:500px;
-  text-align:center;
-}
-h2{
-  font-size:28px;
-  text-shadow:0 0 15px #6c63ff,0 0 25px #ff00ff;
-  margin-bottom:20px;
-}
-.progress-container{
-  width:100%;
-  height:8px;
-  background: rgba(255,255,255,0.2);
-  border-radius:4px;
-  overflow:hidden;
-  margin-bottom:10px;
-  position:relative;
-}
-.progress-bar{
-  height:100%;
-  width:0%;
-  background: linear-gradient(90deg,#6c63ff,#ff00ff,#6c63ff);
-  border-radius:4px;
-  transition: width 0.5s ease;
-  box-shadow:0 0 15px #6c63ff,0 0 25px #ff00ff;
-}
-.progress-text{margin-bottom:20px;font-size:14px;color:#fff;}
-.form-step{display:none;animation: fadeSlide 0.6s forwards;}
-.form-step.active{display:block;}
-@keyframes fadeSlide{0%{opacity:0;transform:translateY(30px);}100%{opacity:1;transform:translateY(0);}}
-input,textarea{
-  width:100%;
-  padding:14px 18px;
-  border-radius:12px;
-  border:2px solid #6c63ff;
-  outline:none;
-  font-size:16px;
-  background: rgba(0,0,0,0.3);
-  color:#fff;
-  box-shadow:0 0 15px #6c63ff inset;
-  transition: all 0.3s ease;
-  margin-bottom:20px;
-}
-input:focus,textarea:focus{
-  border-color:#ff00ff;
-  box-shadow:0 0 30px #ff00ff,0 0 50px #6c63ff inset;
-}
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:15px;
-  background: linear-gradient(90deg,#6c63ff,#ff00ff,#6c63ff);
-  color:#fff;
-  font-size:18px;
-  cursor:pointer;
-  margin-top:10px;
-  text-shadow:0 0 5px #fff;
-}
-button:hover{box-shadow:0 0 30px #ff00ff,0 0 60px #6c63ff inset;}
-.success-message{font-size:22px;font-weight:bold;padding:30px;display:none;}
-@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);}100%{transform:translateY(500px) rotate(720deg);}}
-.confetti{position:absolute;width:10px;height:10px;opacity:0.8;pointer-events:none;}
+  body {
+    margin: 0;
+    background: radial-gradient(circle at top left, #070b1a, #0b121b 60%);
+    color: #fff;
+    font-family: Poppins, sans-serif;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    background: linear-gradient(90deg,#6f00ff,#c800ff);
+    -webkit-background-clip: text;
+    color: transparent;
+    margin-bottom: 20px;
+  }
+  .data-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 20px rgba(120,0,255,0.3);
+  }
+  a.download-link {
+    color: #c800ff;
+    text-decoration: none;
+  }
+  a.download-link:hover {
+    text-decoration: underline;
+  }
+  button {
+    background: linear-gradient(90deg,#6f00ff,#c800ff);
+    border: none;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:hover {
+    opacity: 0.8;
+  }
+  .no-data {
+    text-align: center;
+    opacity: 0.6;
+  }
 </style>
 </head>
 <body>
-
-<div class="form-container">
-  <h2>Form Upload Data</h2>
-  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
-  <div class="progress-text" id="progressText">1 / 5</div>
-
-  <form id="multiStepForm">
-    <div class="form-step active">
-      <input type="text" name="Nama" placeholder="Nama" required>
-      <button type="button" class="next-btn">Next</button>
-    </div>
-    <div class="form-step">
-      <textarea name="Pesan" placeholder="Pesan" required></textarea>
-      <button type="button" class="next-btn">Next</button>
-    </div>
-    <div class="form-step">
-      <input type="text" name="Lokasi" placeholder="Lokasi" required>
-      <button type="button" class="next-btn">Next</button>
-    </div>
-    <div class="form-step">
-      <input type="file" name="Inti" required>
-      <button type="button" class="next-btn">Next</button>
-    </div>
-    <div class="form-step">
-      <button type="submit">Kirim</button>
-    </div>
-  </form>
-
-  <div class="success-message" id="successMessage">
-    Data berhasil disimpan!<br><br>
-    <a href="List.html" style="color:#ff00ff;text-decoration:none;font-weight:bold;">Lihat hasil ➜</a>
-  </div>
-</div>
+<h1>Data yang Tersimpan</h1>
+<div id="dataContainer"></div>
+<div class="no-data" id="noDataMsg">Memuat data...</div>
 
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
+import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCwjE6HKAo_3xxmXMsorUdgPwdT6Oab-Ug",
@@ -140,81 +75,54 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-const form = document.getElementById('multiStepForm');
-const steps = form.querySelectorAll('.form-step');
-const progressBar = document.getElementById('progressBar');
-const progressText = document.getElementById('progressText');
-const successMessage = document.getElementById('successMessage');
+const container = document.getElementById("dataContainer");
+const noDataMsg = document.getElementById("noDataMsg");
 
-let currentStep = 0;
-const totalSteps = steps.length;
+async function loadData() {
+  const submissionsCol = collection(db, "submissions");
+  const snapshot = await getDocs(submissionsCol);
+  const submissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-function showStep(index){
-  steps.forEach((step,i)=>{
-    step.classList.remove('active');
-    if(i===index) step.classList.add('active');
+  if (submissions.length === 0) {
+    noDataMsg.textContent = "Belum ada data tersimpan.";
+    return;
+  }
+  noDataMsg.style.display = "none";
+
+  submissions.forEach((data, index) => {
+    const div = document.createElement("div");
+    div.className = "data-item";
+
+    div.innerHTML = `
+      <p><b>Nama:</b> ${data.Nama || "-"}</p>
+      <p><b>Pesan:</b> ${data.Pesan || "-"}</p>
+      <p><b>Lokasi:</b> ${data.Lokasi || "-"}</p>
+      ${
+        data.IntiURL
+          ? `<p><b>File:</b> <a href="${data.IntiURL}" download class="download-link">Download</a></p>`
+          : `<p><b>File:</b> Tidak ada</p>`
+      }
+      <button onclick="hapusData('${data.id}')">Hapus</button>
+    `;
+    container.appendChild(div);
   });
-  let percent=((index)/totalSteps)*100;
-  progressBar.style.width=percent+'%';
-  progressText.textContent=`${index+1} / ${totalSteps}`;
 }
 
-form.querySelectorAll('.next-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    if(currentStep < totalSteps-1){
-      currentStep++;
-      showStep(currentStep);
+async function hapusData(id) {
+  const konfirmasi = confirm("Yakin mau hapus data ini?");
+  if (konfirmasi) {
+    try {
+      await deleteDoc(doc(db, "submissions", id));
+      location.reload();
+    } catch(err) {
+      console.error("Gagal hapus data:", err);
+      alert("Gagal hapus data.");
     }
-  });
-});
-
-form.addEventListener('submit', async e=>{
-  e.preventDefault();
-
-  const formData = {};
-  const fileInput = form.querySelector('input[name="Inti"]');
-  const file = fileInput.files[0];
-
-  for (let el of form.querySelectorAll("input, textarea")) {
-    if (el.name !== "Inti") formData[el.name] = el.value;
   }
+}
 
-  // Upload file ke Firebase Storage
-  if(file){
-    const storageRef = ref(storage, 'uploads/' + file.name);
-    await uploadBytes(storageRef, file);
-    const fileURL = await getDownloadURL(storageRef);
-    formData.IntiURL = fileURL;
-  }
-
-  // Simpan data ke Firestore
-  try{
-    await addDoc(collection(db, "submissions"), formData);
-  } catch(err){
-    console.error("Error upload ke Firestore:", err);
-  }
-
-  form.style.display='none';
-  successMessage.style.display='block';
-  progressBar.style.width='100%';
-  progressText.textContent=`${totalSteps} / ${totalSteps}`;
-
-  for(let i=0;i<70;i++){
-    const c=document.createElement('div');
-    c.classList.add('confetti');
-    c.style.left=Math.random()*100+'%';
-    c.style.backgroundColor=`hsl(${Math.random()*360},100%,70%)`;
-    c.style.animation=`confettiFall ${2+Math.random()*2}s linear forwards`;
-    c.style.width=5+Math.random()*10+'px';
-    c.style.height=5+Math.random()*10+'px';
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),4000);
-  }
-});
-
-showStep(currentStep);
+loadData();
 </script>
 </body>
 </html>
